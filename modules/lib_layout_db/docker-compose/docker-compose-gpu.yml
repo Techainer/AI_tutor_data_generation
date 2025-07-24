@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  layout:
+    restart: always
+    # pull_policy: always
+    image: techainer1t/lib_layout_db:gpu-triton_flow-10d69a6c
+    dns: 0.0.0.0 
+    ports:
+      - "8096:8095"
+    environment:
+      GUNICORN_WORKERS: 1
+      GUNICORN_THREADS: 1

@@ -1,0 +1,4 @@
+outs:
+- md5: 15519347741d26f18fc5e79b20bfa5de
+  size: 83293925
+  path: optimized_model_20241011.onnx

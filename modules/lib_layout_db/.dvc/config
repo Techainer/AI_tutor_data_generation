@@ -1,0 +1,7 @@
+['remote "techainer"']
+    url = s3://techainer-ai/docchain/lib_layout_db
+    endpointurl = https://storage.tunnel.techainer.com
+
+['remote "seabank"']
+    url = s3://seabank/models/lib_layout_db
+    endpointurl = https://storage.techainer.com/
