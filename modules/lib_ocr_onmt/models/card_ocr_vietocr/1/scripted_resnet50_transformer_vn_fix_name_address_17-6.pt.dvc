@@ -1,0 +1,4 @@
+outs:
+- md5: 460e927bcaf815afdd6599102273012e
+  size: 116008435
+  path: scripted_resnet50_transformer_vn_fix_name_address_17-6.pt

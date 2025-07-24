@@ -1,0 +1,25 @@
+version: "3.7"
+services:
+  ocr_model_storage_gpu:
+    restart: always
+    image: techainer1t/lib_ocr_onmt:model_storage-triton_mixed-361dea02
+    command: /bin/sh -c "sleep .1"
+    volumes:
+    - model_storage-triton_mixed-361dea02:/home/techainer_docker/code/models
+
+  ocr:
+    restart: always
+    image: techainer1t/lib_ocr_onmt:gpu-triton_mixed-361dea02
+    dns: 0.0.0.0 
+    ports:
+      - "32701:8002"
+    environment:
+      GUNICORN_WORKERS: 1
+      GUNICORN_THREADS: 1
+    volumes:
+    - model_storage-triton_mixed-361dea02:/home/techainer_docker/code/models
+    depends_on:
+      - ocr_model_storage_gpu
+
+volumes:
+  model_storage-triton_mixed-361dea02:

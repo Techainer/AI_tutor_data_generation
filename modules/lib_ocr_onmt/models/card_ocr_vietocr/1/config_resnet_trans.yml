@@ -1,0 +1,54 @@
+aug:
+  image_aug: true
+  masked_language_model: true
+backbone: resnet50
+cnn:
+  ss:
+      - [2, 2]
+      - [2, 1]
+      - [2, 1]
+      - [2, 1]
+      - [1, 1]
+  hidden: 256
+dataloader:
+  num_workers: 4
+  pin_memory: true
+dataset:
+  data_root: /mnt/ssd/dlh/ocr_onmt_training/
+  image_height: 48
+  image_max_width: 1024
+  image_min_width: 32
+  name: data_mya
+  train_annotation: data/data_ocr_training_paddle/train_paddle.txt
+  valid_annotation: data/data_ocr_training_paddle/val_paddle.txt
+device: cuda:0
+optimizer:
+  max_lr: 0.0003
+  pct_start: 0.1
+predictor:
+  beamsearch: false
+pretrain: 
+quiet: false
+seq_modeling: transformer
+trainer:
+  batch_size: 32
+  checkpoint: checkpoint/transformerocr_checkpoint.pth
+  export: weights/resnet_transformer_mya.pth
+  iters: 1000000
+  log: ./train.log
+  metrics: null
+  print_every: 500
+  valid_every: 9999999999999
+  save_every: 20000
+transformer:
+  d_model: 256
+  dim_feedforward: 2048
+  max_seq_length: 1024
+  nhead: 8
+  num_decoder_layers: 6
+  num_encoder_layers: 6   
+  pos_dropout: 0.1
+  trans_dropout: 0.1
+vocab: ' !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~¢£¥§¨ª«®±²µ¶·¸¹º»¼½¾ÀÁÂÃÆÈÉÊËÌÍÒÓÔÕÙÚÛÜÝàáâãæèéêëìíòóôõ÷ùúûüýþĂăčĐđĨĩİıńŨũžƠơƯưɂ˙̀́̃̉ΔβεμπσẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ‒„‟†‥‰⁄₫€ℎ™⅓↑∆∑≈⎟⎠□◎☐☒❸㎡가개객거것게결고과관국권기노는니닙다단당대도돕동된될든등떠떤련로록료률를며모무물배법변보복본부분사산상서선성송수습시실아액어없에여와외용우위윤으은의이인있자작장쟁저적전정제종좌주증지진천초최태택투판포하한할항행형𝐓𝐠𝐢𝐧𝐬𝐭𝐴𝐷𝐹𝐿𝑁𝑂𝑃𝑅𝑆𝑇𝑉𝑎𝑏𝑐𝑔𝑖𝑘𝑙𝑛𝑜𝑝𝑞𝑟𝑠𝑡𝑢𝑦𝑨𝑬𝑶𝑹𝑽𝒄𝒉𝒏𝒔𝒖'
+# vocab: 'o좌⅓wỊl거닙ÔẮ¼ẹơ과것x"쟁‥D개İẺMỌû_ồỮ주Ậ˙𝒉irẾ}Ü$·ı모ËÊ인ẵỞ𝑛0ự자없/실𝒖진<ẫ항(ƯJFÃ\ềà한ũA†hẰẼ@성외작𝑘‰ò|ữ«Ỳ종ÆẤ~적;저Ì배수ớɂ아Ầ를포ảÕ하ỉ%ễ시𝑆T𝒔ạ☐본ầỢã𝐬상ử̃□μỸ천록óốg동Ặ,s̉최ỰσỎ𝑠̀기보ếe지L𝐴ô와á78ĂệĐở-ỴVÀ&EụƠỤấýε²Ạ𝒏æ돕률Ệ!정관Ồ이복𝑡Ỉń+É9료𝐓π산ờ𝑃ù`>ợ∆당ắ여𝑜ú니Ảừt𝐢ℎ𝑬:¥ủộÙĩ𝐷노등㎡용련Ý​ëGỵê는◎다초𝐹⎟증𝑏떤분¶I[있국Ứ𝑦ứọ 3Ể¹‒𝑽𝑁𝐿ẻ형우n𝑞대§의ể*𝑢R=고부𝒄„™단''þỐẽẳ𝑖물Δ¸v전£게ỠỹỦ무선Q𝑔𝑟ỘaP든ŨuẸỬH변ẩ법^ịÁ𝑙Í±ỜSyB❸𝑉≈Â↑1ăO6가]ỷ₫Ẩ½Ĩ은에제Ễéž태𝑇fb택판객Ỗd?p결Ẫè¾로ºzU도ỳỀ윤®j𝑨Ûβ‟Ừ){할X권õ투송.N¢어Ú5ằ𝑹𝐠kC장⁄YỔỏ2âÒKÓ»¨ư𝑶⎠위Ỷ𝐧𝑅며cặ될µü#으∑Ẳí𝑂ZWmổ𝐭사€÷된액☒ậqẴ행떠́습𝑐서𝑝ỗÈỡđỚčªì4 '
+weights: weights/resnet_transformer_mya.pth

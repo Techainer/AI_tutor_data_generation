@@ -1,0 +1,73 @@
+version: "3.7"
+services:
+  minio: 
+    image: minio/minio:latest
+    pull_policy: always
+    dns: 0.0.0.0 
+    ports:
+      - "16000:9000"
+      - "16001:9001"
+    volumes:
+      - ai:/data
+    environment:
+      # MINIO_ACCESS_KEY: minioKey
+      # MINIO_SECRET_KEY: minioSecret
+      MINIO_ROOT_USER: minioKey
+      MINIO_ROOT_PASSWORD: minioSecret
+      MINIO_BUCKET: techainer
+    command: server /data --console-address ":9001"
+    depends_on:
+      - ocr_model_storage
+
+  ocr_model_storage:
+    restart: always
+    pull_policy: always
+    image: techainer1t/lib_ocr_onmt:model_storage-triton_mixed-0ccc0fbf
+    volumes:
+      - ocr_shared_model_storage:/home/techainer_docker/code/models
+    environment: 
+      AWS_ACCESS_KEY_ID: minioKey
+      AWS_SECRET_ACCESS_KEY: minioSecret
+      AWS_BUCKET: techainer
+      AWS_S3_ENDPOINT_URL: http://minio:9000
+
+  triton:
+    restart: always
+    pull_policy: never
+    image: nvcr.io/nvidia/tritonserver:22.05-py3
+    ports:
+      - "8000"
+      - "8001"
+      - "8002"
+    command: tritonserver --model-repository=s3://http://minio:9000/techainer/models --strict-model-config=false --exit-on-error=false --model-control-mode=poll --repository-poll-secs=5
+    environment: 
+      AWS_ACCESS_KEY_ID: minioKey
+      AWS_SECRET_ACCESS_KEY: minioSecret
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - capabilities: [gpu, utility, compute, video]
+    depends_on:
+      - minio
+
+  ocr:
+    restart: always
+    pull_policy: never
+    image: techainer1t/lib_ocr_onmt:triton-triton_mixed-0ccc0fbf
+    volumes:
+      - ocr_shared_model_storage:/home/techainer_docker/code/models
+    dns: 0.0.0.0 
+    ports:
+      - "32701:8004"
+    environment:
+      GUNICORN_WORKERS: 1
+      GUNICORN_THREADS: 1
+      PORT: 8004
+      ocr_vocab_path: "models/card_ocr/vocab_all_data_step_2572000.pt"
+    depends_on:
+      - triton
+
+volumes:
+  ai:
+  ocr_shared_model_storage:

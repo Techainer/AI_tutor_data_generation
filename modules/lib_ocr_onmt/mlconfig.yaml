@@ -1,0 +1,49 @@
+name: ONMTOCRModel # name of service
+version: 0.2
+entry_file: server.py # python file contains object ServeModel
+host: '0.0.0.0' # host service
+port: 8002 # port service
+
+# Server config 
+server: flask        # Option flask or starlette or grpc
+wrapper: gunicorn        # Option None or gunicorn
+cors: true               # Auto enable CORS
+cors_allow_origins:      # Allow origins for CORS
+  - "*"                  # Allow all incoming address  
+  
+static_folder:           # static folder for TemplateResponse
+static_url_path:         # static url path for TemplateResponse
+template_folder:         # template folder for TemplateResponse
+
+# Gunicorn config - Use gunicorn for general case
+gunicorn: 
+  timeout: 300            # The requests will be maximum 200 seconds in default, then when the requests is done, the worker will be restarted 
+  keepalive: 75            # Keep requests alive when inactive with client in 3 seconds default
+  max_requests: 0         # Maximum serving requests until workers restart to handle over memory in Python 
+  threads: 1              # Number of simultaneous threads in workers
+  max_requests_jitter: 50
+  worker_class: 'gthread'
+  graceful_timeout: 20
+
+bind:
+  - 'unix:/tmp/gunicorn.sock' # Using sock to make gunicorn faster
+
+mode:
+  default: default
+  env:
+    default: 
+      flow_mode: "legacy"
+      ocr_vocab_path: 'models/card_ocr/1/vocab_all_data_step_2572000.pt'
+      ocr_weight_path: 'models/card_ocr/1/all_data_step_2572000_scripted.pt'
+      ocr_confidence_threshold: 0.6
+      debug: False
+    prod:
+      debug: False
+    triton:
+      flow_mode: "triton"
+      triton_url: "localhost:11000"
+      ocr_model_name: "card_ocr"
+      ocr_model_version: "1"
+      debug: False
+      concurrency_client: 8
+

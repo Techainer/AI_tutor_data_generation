@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: onmt-ocr
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+      name: http-onmt-ocr
+  selector:
+    app: onmt-ocr
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: onmt-ocr
+spec:
+  host: onmt-ocr.default.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: "onmt-ocr"
+spec:
+  hosts:
+    - "ocr.gotai.ml"
+  gateways:
+    - techainer-gateway
+    # - techainer-ilb-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /onmt/call/predict
+      rewrite:
+        uri: /call/predict
+      route:
+        - destination:
+            host: onmt-ocr.default.svc.cluster.local
+            port:
+              number: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onmt-ocr
+spec:
+  selector:
+    matchLabels:
+      app: onmt-ocr
+  replicas: 15
+  template:
+    metadata:
+      labels:
+        app: onmt-ocr
+    spec:
+      nodeSelector:
+        nvidia.com/gpu: "false"
+      containers:
+        - name: onmt
+          image: 157967328636.dkr.ecr.us-west-2.amazonaws.com/onmt_app:2.0.2
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /api/ping
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          # resources:
+          #   requests:
+          #     memory: "150Mi"
+          #     cpu: "100m"
+          #   limits:
+          #     memory: "200Mi"
+          #     cpu: "100m"
+      restartPolicy: Always
+# ---
+# apiVersion: autoscaling/v2beta1
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: ocr-onmt-autoscaler
+#   namespace: default
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: onmt-ocr
+#   minReplicas: 2
+#   maxReplicas: 10
+#   metrics:
+#     - type: Resource
+#       resource:
+#         name: cpu
+#         targetAverageUtilization: 70
+# - type: Resource
+#   resource:
+#     name: memory
+#     targetAverageValue: 180Mi

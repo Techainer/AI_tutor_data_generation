@@ -1,0 +1,17 @@
+debugs
+data
+env/
+.vscode/
+__pycache__/
+.git/
+README.md
+deploy/
+.gitignore
+*.jpg
+*.png
+*.jpeg
+.dvc
+.gitlab-ci.yml
+**/*.dvc
+.github
+*.Dockerfile
