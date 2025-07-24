@@ -135,12 +135,15 @@ class MainDataGeneration:
         w = image.shape[1]
         cropped_images = []
         
-        for idx in range(len(exercise_title_bb_list.exercise_title_list)-1):
+        for idx in range(len(exercise_title_bb_list.exercise_title_list)):
             x_min1,y_min1,x_max1,y_max1 = exercise_title_bb_list.exercise_title_list[idx].bounding_box
-            x_min2,y_min2,x_max2,y_max2 = exercise_title_bb_list.exercise_title_list[idx+1].bounding_box
             
-            cropped_image = image[y_min1 - 3: y_min2 + 3, 0: w]
-            
+            if idx == len(exercise_title_bb_list.exercise_title_list)-1:
+                cropped_image = image[y_min1: ,0: w]
+            else:
+                x_min2,y_min2,x_max2,y_max2 = exercise_title_bb_list.exercise_title_list[idx+1].bounding_box
+                cropped_image = image[y_min1 - 3: y_min2 + 3, 0: w]
+                
             buffer = io.BytesIO()
             cropped_image = Image.fromarray(cropped_image)
             if cropped_image.mode == 'RGB':
