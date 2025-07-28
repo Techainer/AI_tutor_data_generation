@@ -24,7 +24,7 @@ You will serve as a supplementary tool for an LLM, so your output needs to be as
     * Focus on question type (e.g., solving problem, proving statement).
     * Steps should be **concise**, not too many small steps. Depends on problem difficulty.
     * List the solution steps and the answer for each step.
-    * At the end, provide the **final answer**, highlighted.
+    * At the end, provide the **final answer**, highlighted and put your final answer within \\boxed{{}}.
     * Try to use short keyword at each step for shorter response.
     * Highly prefer knowledge K12 textbook. Each step explain a little of what knowledge use
 
