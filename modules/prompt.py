@@ -33,6 +33,7 @@ You will serve as a supplementary tool for an LLM, so your output needs to be as
 * **Remove all superfluous words from the response; keep only key terms as your output is for an LLM.**
 * Response in vietnamese
 * Exclude steps for reading the problem, concluding the solution, or selecting from multiple-choice options.
+* Always provide a complete and exhaustive answer.
 
 INPUT:
 {input}
