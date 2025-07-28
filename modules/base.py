@@ -47,7 +47,7 @@ class BaseLLMModule(BaseEngine):
         top_p: float = 0.75,
         presence_penalty: float = 0.5,
         frequency_penalty: float = 0.5,
-        max_tokens: int = 1024,
+        max_tokens: int = 16384,
         timeout: Optional[int] = 45,
         max_retries: int = 3,
         system_prompt: Optional[str] = None,
