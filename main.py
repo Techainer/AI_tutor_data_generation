@@ -2,6 +2,7 @@ import os
 import io
 import cv2
 import copy
+import json
 from typing import Union, List
 from dotenv import load_dotenv
 from PIL import Image
@@ -33,10 +34,10 @@ class MainDataGeneration:
         self.require_step_by_step_solution = require_step_by_step_solution
         if self.require_step_by_step_solution:
             self.step_by_step_solver = StepByStepSolver(
-                api_key=openai_api_key,
-                llm_model="gpt-4o",
-                provider="openai",
-                llm_host=openai_api_url
+                api_key=google_api_key,
+                llm_model="gemini-2.5-flash",
+                provider="google",
+                llm_host=self_host_api_url
             )
         else:
             self.step_by_step_solver = None
@@ -48,7 +49,17 @@ class MainDataGeneration:
             os.makedirs("debug",exist_ok=True)
     
     def process_image(self, input_image: np.ndarray, page_idx: int, padding_exercise: int=0, padding_pixel_top: int=5, padding_pixel_bot: int=5) -> None:
-        """Run the exercise extraction process."""
+        """
+            Describle: Run the exercise extraction process.
+            Args:
+                input_image: Image of page.
+                page_idx: index of page.
+                padding_exercise: number of padding exercise to bot and top.
+                padding_pixel_top: number of padding pixel in top.
+                padding_pixel_bot: number of padding pixel in bot.
+            Returns:
+                _type_: None
+        """
         logger.info("Starting exercise extraction in image...")
         os.makedirs(f"output_image/page_{page_idx}", exist_ok=True)
         if debug:
@@ -58,6 +69,9 @@ class MainDataGeneration:
             if debug:
                 debug_image = input_image.copy()
             split_y_coordinates = self.crop_exercise_db_model.process(input_image, page_idx=page_idx)
+            if len(split_y_coordinates) == 0:
+                logger.info("No exercise found, return without calling LLM")
+                return
             for idx, split_y_coordinate in enumerate(split_y_coordinates):
 
                 if debug:
@@ -93,8 +107,10 @@ class MainDataGeneration:
                         exercise.answer = solution
 
                 for exercise in exercise_list.exercise_list:
+                    D = exercise.model_dump()
+                    D['image'] = f"output_image/page_{page_idx}/exercise_image_{idx}.png"
                     with open(self.save_path, 'a', encoding='utf-8') as f:
-                        f.write(f"{exercise.model_dump_json()},\n")
+                        f.write(f"{json.dumps(D, ensure_ascii=False)},\n")
 
                 logger.success("Extracted exercises successfully.")
         except Exception as e:
