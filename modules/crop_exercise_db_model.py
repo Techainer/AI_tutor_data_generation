@@ -116,7 +116,7 @@ class CropExerciseDBModel:
                 or text['prediction'].startswith("Côu") \
                 or text['prediction'].startswith(">>Câu") \
                 or text['prediction'].startswith(">> Câu") \
-                or text['prediction'].startswith("> Câu"):
+                or text['prediction'].startswith("n Câu"):
                 potential_line.append(bbox[1])
                 
         potential_line.sort()
