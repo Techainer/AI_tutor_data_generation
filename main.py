@@ -48,7 +48,7 @@ class MainDataGeneration:
         if debug:
             os.makedirs("debug",exist_ok=True)
     
-    def process_image(self, input_image: np.ndarray, page_idx: int, padding_exercise: int=0, padding_pixel_top: int=5, padding_pixel_bot: int=5) -> None:
+    def process_image(self, input_image: np.ndarray, page_idx: int, pdf_path: str, padding_pixel_top: int=5, padding_pixel_bot: int=5) -> None:
         """
             Describle: Run the exercise extraction process.
             Args:
@@ -61,7 +61,7 @@ class MainDataGeneration:
                 _type_: None
         """
         logger.info("Starting exercise extraction in image...")
-        os.makedirs(f"data/output_image/page_{page_idx}", exist_ok=True)
+        os.makedirs(f"data/{pdf_path}/output_image/page_{page_idx}", exist_ok=True)
         if debug:
             os.makedirs(f"debug/page_{page_idx}", exist_ok=True)
         try: 
@@ -86,8 +86,8 @@ class MainDataGeneration:
                     cropped_exercise = input_image[split_y_coordinate-padding_pixel_top: y2+padding_pixel_bot , 0: w]
                     
                 viz_image = cropped_exercise.copy()
-                cv2.imwrite(f"data/output_image/page_{page_idx}/exercise_image_{idx}.png", viz_image)
-                logger.success(f"Save exercise image to data/output_image/page_{page_idx}/exercise_image_{idx}.png", viz_image)
+                cv2.imwrite(f"data/{pdf_path}/output_image/page_{page_idx}/exercise_image_{idx}.png", viz_image)
+                logger.success(f"Save exercise image to data/{pdf_path}/output_image/page_{page_idx}/exercise_image_{idx}.png", viz_image)
                 
                 if debug:
                     cv2.imwrite(f"debug/page_{page_idx}/exercise_crop_image{idx}.png", viz_image)
@@ -108,7 +108,7 @@ class MainDataGeneration:
 
                 for exercise in exercise_list.exercise_list:
                     D = exercise.model_dump()
-                    D['image'] = f"data/output_image/page_{page_idx}/exercise_image_{idx}.png"
+                    D['image'] = f"data/{pdf_path}/output_image/page_{page_idx}/exercise_image_{idx}.png"
                     with open(self.save_path, 'a', encoding='utf-8') as f:
                         f.write(f"{json.dumps(D, ensure_ascii=False)},\n")
                     
@@ -125,9 +125,9 @@ class MainDataGeneration:
                     if idx > 0 and idx < len(split_y_coordinates) - 1:
                         padding_exercise_image = input_image[split_y_coordinates[idx-1]:split_y_coordinates[idx+1], 0:w]
                         
-                    cv2.imwrite(f"data/output_image/page_{page_idx}/padding_exercise_image_{idx}.png", padding_exercise_image)
+                    cv2.imwrite(f"data/{pdf_path}/output_image/page_{page_idx}/padding_exercise_image_{idx}.png", padding_exercise_image)
                     padding_D = copy.deepcopy(D)
-                    padding_D['image'] = f"data/output_image/page_{page_idx}/padding_exercise_image_{idx}.png"
+                    padding_D['image'] = f"data/{pdf_path}/output_image/page_{page_idx}/padding_exercise_image_{idx}.png"
                     with open(self.save_path, 'a', encoding='utf-8') as f:
                         f.write(f"{json.dumps(D, ensure_ascii=False)},\n")
 
