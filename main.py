@@ -8,6 +8,7 @@ from typing import Union, List
 from dotenv import load_dotenv
 from PIL import Image
 import numpy as np
+from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 from modules.exercise_extractor import ExerciseExtractor
 from modules.step_by_step_solver_model import StepByStepSolver
@@ -73,7 +74,7 @@ class MainDataGeneration:
             if len(split_y_coordinates) == 0:
                 logger.info("No exercise found, return without calling LLM")
                 return
-            for idx, split_y_coordinate in enumerate(split_y_coordinates):
+            for idx, split_y_coordinate in enumerate(split_y_coordinates[:-1]):
 
                 if debug:
                     debug_image = cv2.line(debug_image, (0, split_y_coordinate), (w, split_y_coordinate), color=(0,255,0), thickness=2)
@@ -154,9 +155,10 @@ class MainDataGeneration:
 
         try:
             images = pdf_pages_to_images(pdf_path)
-            for page_idx, image in tqdm(enumerate(images[start_page: end_page]), desc="Processing PDF pages:"):
-                image = np.array(Image.open(io.BytesIO(image)))
-                self.process_image(image, page_idx=page_idx, pdf_path=os.path.basename(pdf_path).replace(".pdf",""))
+            with ThreadPoolExecutor(max_workers=8) as executor:
+                for page_idx, image in tqdm(enumerate(images[start_page: end_page]), desc="Processing PDF pages:"):
+                    image = np.array(Image.open(io.BytesIO(image)))
+                    executor.submit(self.process_image, image, page_idx=page_idx, pdf_path=os.path.basename(pdf_path).replace(".pdf",""))
             logger.success("Extracted exercises successfully.")
         except Exception as e:
             logger.error(f"Error processing PDF: {e} in line {e.__traceback__.tb_lineno}, code: {e.__traceback__.tb_frame.f_code.co_name}")
