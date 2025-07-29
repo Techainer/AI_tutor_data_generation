@@ -3,6 +3,7 @@ import io
 import cv2
 import copy
 import json
+import random
 from typing import Union, List
 from dotenv import load_dotenv
 from PIL import Image
@@ -123,13 +124,25 @@ class MainDataGeneration:
                             padding_exercise_image = input_image[split_y_coordinate : split_y_coordinates[idx+2], 0:w]
 
                     if idx > 0 and idx < len(split_y_coordinates) - 1:
-                        padding_exercise_image = input_image[split_y_coordinates[idx-1]:split_y_coordinates[idx+1], 0:w]
+                        p = random.random()
+                        if p < 0.33:
+                            padding_exercise_image = input_image[split_y_coordinates[idx-1]:split_y_coordinates[idx+1], 0:w]
+                        elif p>=0.33 and p<0.66:
+                            if idx == len(split_y_coordinates) - 2:
+                                padding_exercise_image = input_image[split_y_coordinate : , 0:w]
+                            else:
+                                padding_exercise_image = input_image[split_y_coordinate : split_y_coordinates[idx+2], 0:w]
+                        else:
+                            if idx == len(split_y_coordinates) - 2:
+                                padding_exercise_image = input_image[split_y_coordinates[idx-1] : , 0:w]
+                            else:
+                                padding_exercise_image = input_image[split_y_coordinates[idx-1] : split_y_coordinates[idx+2], 0:w]
                         
                     cv2.imwrite(f"data/{pdf_path}/output_image/page_{page_idx}/padding_exercise_image_{idx}.png", padding_exercise_image)
                     padding_D = copy.deepcopy(D)
                     padding_D['image'] = f"data/{pdf_path}/output_image/page_{page_idx}/padding_exercise_image_{idx}.png"
                     with open(self.save_path, 'a', encoding='utf-8') as f:
-                        f.write(f"{json.dumps(D, ensure_ascii=False)},\n")
+                        f.write(f"{json.dumps(padding_D, ensure_ascii=False)},\n")
 
                 logger.success("Extracted exercises successfully.")
         except Exception as e:
@@ -143,7 +156,7 @@ class MainDataGeneration:
             images = pdf_pages_to_images(pdf_path)
             for page_idx, image in tqdm(enumerate(images[start_page: end_page]), desc="Processing PDF pages:"):
                 image = np.array(Image.open(io.BytesIO(image)))
-                self.process_image(image, page_idx=page_idx)
+                self.process_image(image, page_idx=page_idx, pdf_path=os.path.basename(pdf_path).replace(".pdf",""))
             logger.success("Extracted exercises successfully.")
         except Exception as e:
             logger.error(f"Error processing PDF: {e} in line {e.__traceback__.tb_lineno}, code: {e.__traceback__.tb_frame.f_code.co_name}")
