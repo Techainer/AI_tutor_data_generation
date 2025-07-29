@@ -111,6 +111,25 @@ class MainDataGeneration:
                     D['image'] = f"output_image/page_{page_idx}/exercise_image_{idx}.png"
                     with open(self.save_path, 'a', encoding='utf-8') as f:
                         f.write(f"{json.dumps(D, ensure_ascii=False)},\n")
+                    
+                    # add padding exercise
+                    if idx == len(split_y_coordinates)-1 and idx > 0:
+                        padding_exercise_image = input_image[split_y_coordinates[idx-1]:, 0:w]
+                        
+                    if idx == 0 and idx < len(split_y_coordinates) - 1:
+                        if idx == len(split_y_coordinates) - 2:
+                            padding_exercise_image = input_image[split_y_coordinate : , 0:w]
+                        else:
+                            padding_exercise_image = input_image[split_y_coordinate : split_y_coordinates[idx+2], 0:w]
+
+                    if idx > 0 and idx < len(split_y_coordinates) - 1:
+                        padding_exercise_image = input_image[split_y_coordinates[idx-1]:split_y_coordinates[idx+1], 0:w]
+                        
+                    cv2.imwrite(f"output_image/page_{page_idx}/padding_exercise_image_{idx}.png", padding_exercise_image)
+                    padding_D = copy.deepcopy(D)
+                    padding_D['image'] = f"output_image/page_{page_idx}/padding_exercise_image_{idx}.png"
+                    with open(self.save_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{json.dumps(D, ensure_ascii=False)},\n")
 
                 logger.success("Extracted exercises successfully.")
         except Exception as e:
