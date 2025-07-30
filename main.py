@@ -50,7 +50,7 @@ class MainDataGeneration:
         if debug:
             os.makedirs("debug",exist_ok=True)
     
-    def process_image(self, input_image: np.ndarray, page_idx: int, pdf_path: str, padding_pixel_top: int=5, padding_pixel_bot: int=5) -> None:
+    def process_image(self, input_image: np.ndarray, page_idx: int, pdf_path: str, padding_pixel_top: int=8, padding_pixel_bot: int=5) -> None:
         """
             Describle: Run the exercise extraction process.
             Args:
@@ -158,7 +158,7 @@ class MainDataGeneration:
             with ThreadPoolExecutor(max_workers=8) as executor:
                 for page_idx, image in tqdm(enumerate(images[start_page: end_page]), desc="Processing PDF pages:"):
                     image = np.array(Image.open(io.BytesIO(image)))
-                    executor.submit(self.process_image, image, page_idx=page_idx, pdf_path=os.path.basename(pdf_path).replace(".pdf",""))
+                    executor.submit(self.process_image, image, page_idx=page_idx+start_page, pdf_path=os.path.basename(pdf_path).replace(".pdf",""))
             logger.success("Extracted exercises successfully.")
         except Exception as e:
             logger.error(f"Error processing PDF: {e} in line {e.__traceback__.tb_lineno}, code: {e.__traceback__.tb_frame.f_code.co_name}")
