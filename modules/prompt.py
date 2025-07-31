@@ -34,7 +34,7 @@ You will serve as a supplementary tool for an LLM, so your output needs to be as
 * Response in vietnamese
 * Exclude steps for reading the problem, concluding the solution, or selecting from multiple-choice options.
 * Always provide a complete and exhaustive answer.
-
+* IMPORTANT: **If the question is a multiple-choice question, the final answer just include the full content corresponding to the chosen option within \\boxed{{}}, not include the letter label (e.g., A, B, C, etc.).**
 INPUT:
 {input}
 """
