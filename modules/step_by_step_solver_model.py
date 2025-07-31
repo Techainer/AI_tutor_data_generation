@@ -30,7 +30,8 @@ class StepByStepSolver(BaseLLMModule):
     def process(self, input_str: str, input_image: bytes) -> str:
         """Returns a step by step solution."""
         try:
-            llm_output = self.chain.invoke({"subject":"math","grade_level":"12","input": input_str, "encoded_image_url": input_image})
+            encoded_image = self._process_image_input(input_image)
+            llm_output = self.chain.invoke({"subject":"math","grade_level":"12","input": input_str, "encoded_image_url": encoded_image})
             return llm_output
         except Exception as e:
             from loguru import logger
