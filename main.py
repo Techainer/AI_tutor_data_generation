@@ -13,13 +13,14 @@ from tqdm import tqdm
 from modules.exercise_extractor import ExerciseExtractor
 from modules.step_by_step_solver_model import StepByStepSolver
 from modules.crop_exercise_db_model import CropExerciseDBModel
+from modules.final_answer_extractor import FinalAnswerExtractor
 from modules.utils import pdf_pages_to_images
 from loguru import logger
 load_dotenv()
 
 debug = True
 class MainDataGeneration:
-    def __init__(self, save_path: str = "output.json", require_step_by_step_solution: bool = False):
+    def __init__(self, save_path: str = "output.json", require_step_by_step_solution: bool = False, extract_final_answer: bool = False):
         openai_api_key = os.getenv("LITELLM_API_KEY")
         openai_api_url = os.getenv("LITELLM_API_URL")
         google_api_key = os.getenv("GOOGLE_API_KEY")
@@ -43,6 +44,17 @@ class MainDataGeneration:
             )
         else:
             self.step_by_step_solver = None
+            
+        self.extract_final_answer = extract_final_answer
+        if extract_final_answer:
+            self.final_answer_extractor = FinalAnswerExtractor(
+                api_key=google_api_key,
+                llm_model="gemini-2.5-flash",
+                provider="google",
+                llm_host=self_host_api_url
+            )
+        else:
+            self.final_answer_extractor = None
             
         self.crop_exercise_db_model = CropExerciseDBModel(debug=debug)
 
@@ -104,9 +116,19 @@ class MainDataGeneration:
                 
                 if self.require_step_by_step_solution:
                     logger.info("Starting give step by step solution for each exercise...")
-                    for exercise in exercise_list.exercise_list:
+                    for idx, exercise in enumerate(exercise_list.exercise_list):
                         solution = self.step_by_step_solver.process(exercise.question, cropped_exercise)
                         exercise.answer = solution
+                        
+                        if self.extract_final_answer:
+                            def extract_final_answer_fn(exercise):
+                                return self.final_answer_extractor.process(exercise.answer)
+
+                            # Create a new class on-the-fly that inherits from qa.__class__
+                            exercise.__class__ = type("ExerciseWithFinalAnswer", (exercise.__class__,), {
+                                "final_answer": property(extract_final_answer_fn),
+                                "id": property(lambda x: idx)
+                            })
 
                 for exercise in exercise_list.exercise_list:
                     D = exercise.model_dump()
