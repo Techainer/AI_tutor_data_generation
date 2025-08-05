@@ -119,19 +119,14 @@ class MainDataGeneration:
                     for idx, exercise in enumerate(exercise_list.exercise_list):
                         solution = self.step_by_step_solver.process(exercise.question, cropped_exercise)
                         exercise.answer = solution
-                        
-                        if self.extract_final_answer:
-                            def extract_final_answer_fn(exercise):
-                                return self.final_answer_extractor.process(exercise.answer)
-
-                            # Create a new class on-the-fly that inherits from qa.__class__
-                            exercise.__class__ = type("ExerciseWithFinalAnswer", (exercise.__class__,), {
-                                "final_answer": property(extract_final_answer_fn),
-                                "id": property(lambda x: idx)
-                            })
 
                 for exercise in exercise_list.exercise_list:
                     D = exercise.model_dump()
+                    
+                    # Extract final answer if required
+                    if self.extract_final_answer:
+                        D['final_answer'] = self.final_answer_extractor.process(exercise.answer)
+                    
                     D['image'] = f"data/{pdf_path}/output_image/page_{page_idx}/exercise_image_{idx}.png"
                     with open(self.save_path, 'a', encoding='utf-8') as f:
                         f.write(f"{json.dumps(D, ensure_ascii=False)},\n")
