@@ -116,7 +116,7 @@ class MainDataGeneration:
                 
                 if self.require_step_by_step_solution:
                     logger.info("Starting give step by step solution for each exercise...")
-                    for idx, exercise in enumerate(exercise_list.exercise_list):
+                    for exercise in exercise_list.exercise_list:
                         solution = self.step_by_step_solver.process(exercise.question, cropped_exercise)
                         exercise.answer = solution
 
