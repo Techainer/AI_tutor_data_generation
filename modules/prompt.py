@@ -68,3 +68,5 @@ A list of JSON objects, where each object has two keys:
 Analyze the provided image meticulously based on the guidelines and return the JSON list as specified.
 {format_instruction}
 """
+
+FINAL_ANSWER_EXTRACTION_PROMPT = """Extract the final answer from the complete answer provided. The final answer is typically found at the end of the full response."""
