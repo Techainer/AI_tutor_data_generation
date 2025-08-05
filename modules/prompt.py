@@ -69,4 +69,4 @@ Analyze the provided image meticulously based on the guidelines and return the J
 {format_instruction}
 """
 
-FINAL_ANSWER_EXTRACTION_PROMPT = """Extract the final answer from the complete answer provided. The final answer is typically found at the end of the full response."""
+FINAL_ANSWER_EXTRACTION_PROMPT = """Extract the final answer from the complete answer provided. The final answer is typically found at the end of the full response. {input}"""
