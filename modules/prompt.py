@@ -68,3 +68,8 @@ A list of JSON objects, where each object has two keys:
 Analyze the provided image meticulously based on the guidelines and return the JSON list as specified.
 {format_instruction}
 """
+
+FINAL_ANSWER_EXTRACTION_PROMPT = """Extract the final answer from the complete answer provided. The final answer is typically found at the end of the full response.
+**IMPORTANT: Do not include any introductory text (e.g., 'The final answer is', 'Answer:') in your extraction. The output should consist solely of the final answer like '6+9i', 'x^5 - x^4 + x^3 - x^2 + x - 1', etc...*
+### INPUT:
+{input}"""

@@ -13,13 +13,14 @@ from tqdm import tqdm
 from modules.exercise_extractor import ExerciseExtractor
 from modules.step_by_step_solver_model import StepByStepSolver
 from modules.crop_exercise_db_model import CropExerciseDBModel
+from modules.final_answer_extractor import FinalAnswerExtractor
 from modules.utils import pdf_pages_to_images
 from loguru import logger
 load_dotenv()
 
 debug = True
 class MainDataGeneration:
-    def __init__(self, save_path: str = "output.json", require_step_by_step_solution: bool = False):
+    def __init__(self, save_path: str = "output.json", require_step_by_step_solution: bool = False, extract_final_answer: bool = False):
         openai_api_key = os.getenv("LITELLM_API_KEY")
         openai_api_url = os.getenv("LITELLM_API_URL")
         google_api_key = os.getenv("GOOGLE_API_KEY")
@@ -43,6 +44,17 @@ class MainDataGeneration:
             )
         else:
             self.step_by_step_solver = None
+            
+        self.extract_final_answer = extract_final_answer
+        if extract_final_answer:
+            self.final_answer_extractor = FinalAnswerExtractor(
+                api_key=google_api_key,
+                llm_model="gemini-2.5-flash",
+                provider="google",
+                llm_host=self_host_api_url
+            )
+        else:
+            self.final_answer_extractor = None
             
         self.crop_exercise_db_model = CropExerciseDBModel(debug=debug)
 
@@ -110,6 +122,11 @@ class MainDataGeneration:
 
                 for exercise in exercise_list.exercise_list:
                     D = exercise.model_dump()
+                    
+                    # Extract final answer if required
+                    if self.extract_final_answer:
+                        D['final_answer'] = self.final_answer_extractor.process(exercise.answer)
+                    
                     D['image'] = f"data/{pdf_path}/output_image/page_{page_idx}/exercise_image_{idx}.png"
                     with open(self.save_path, 'a', encoding='utf-8') as f:
                         f.write(f"{json.dumps(D, ensure_ascii=False)},\n")
