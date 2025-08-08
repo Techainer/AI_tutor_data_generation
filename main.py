@@ -173,7 +173,7 @@ class MainDataGeneration:
         try:
             images = pdf_pages_to_images(pdf_path)
             with ThreadPoolExecutor(max_workers=8) as executor:
-                for page_idx, image in tqdm(enumerate(images[start_page: end_page]), desc="Processing PDF pages:"):
+                for page_idx, image in tqdm(enumerate(images[start_page: ]), desc="Processing PDF pages:"):
                     image = np.array(Image.open(io.BytesIO(image)))
                     executor.submit(self.process_image, image, page_idx=page_idx+start_page, pdf_path=os.path.basename(pdf_path).replace(".pdf",""))
             logger.success("Extracted exercises successfully.")
