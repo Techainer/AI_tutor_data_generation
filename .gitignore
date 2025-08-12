@@ -8,3 +8,4 @@ data.json
 output_image/
 models/
 *.json
+notebook.ipynb
