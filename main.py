@@ -166,12 +166,14 @@ class MainDataGeneration:
         except Exception as e:
             logger.error(f"Error during exercise extraction: {e} in line {e.__traceback__.tb_lineno}, code: {e.__traceback__.tb_frame.f_code.co_name}")
     
-    def process_pdf(self, pdf_path: str, start_page: int = 0, end_page: int = -1) -> None:
+    def process_pdf(self, pdf_path: str, start_page: int = 0, end_page: int = None) -> None:
         """Process a PDF file and extract exercises from each page."""
         logger.info("Starting exercise extraction in PDF...")
 
         try:
             images = pdf_pages_to_images(pdf_path)
+            if end_page is None:
+                end_page = len(images)
             with ThreadPoolExecutor(max_workers=8) as executor:
                 for page_idx, image in tqdm(enumerate(images[start_page: end_page]), desc="Processing PDF pages:"):
                     image = np.array(Image.open(io.BytesIO(image)))
